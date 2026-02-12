@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.order.dto.OrderRequestDTO;
+import com.order.dto.OrderResponseDTO;
 import com.order.entity.Order;
 import com.order.service.OrderService;
 
@@ -26,8 +28,8 @@ public class OrderController {
 
 	// CREATE
 	@PostMapping
-	public Order createOrder(@RequestBody Order order) {
-		return orderService.createOrder(order);
+	public OrderResponseDTO createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+		return orderService.createOrder(orderRequestDTO);
 	}
 
 	// READ BY ID
