@@ -1,0 +1,328 @@
+Kubernetes:-
+==============
+What is Kubernetes?
+=>k8s is open-source container-orchestration engine or container management tool, it automates deploying, scaling, and managing containerized applications. 
+
+==> one cluster we may have one node or multiple and inside node we have one pod or multiple inside pod we have one container or multiple containers
+==> Pods are running inside a node
+==> Each Pod we have new ip address
+Replica:- 
+======
+-> Acts as a backup of our pod. If any pod is not working immediately replica set will be replace with that pod and new ip address
+
+Service:-
+=======
+=> Traffic is coming to your pod managing by or handling by your service
+=> Each pod we have one unique service and one service will communicate with another service by using DNS so it will not effect to application
+
+Deployment:-
+==========
+=>how to run and manage your application over time.
+A Deployment:
+=> Describes how many copies (replicas) of your app should run => Manages Pod creation and deletion => Handles rolling updates (zero-downtime deploys) => Automatically restarts Pods if they crash => Lets you roll back to a previous version
+
+Secrets & Config Map:-
+=================
+-> Both are used to config the sensitive information
+
+ETCD:-
+=====
+=>etcd is where Kubernetes stores everything about the cluster.
+
+Distributed Key-Value Database for Cluster StateIt stores:
+=> All cluster configuration => Desired state (from YAML files) => Actual state (what’s really running) => Secrets & ConfigMaps =>  Node info => Pod, Deployment, Service metadata => Leader election data
+
+Kubernetes architecture:-
+===================
+
+1. API server :- kubectl (command line tool) or K8S UI
+2. Scheduler :- 
+3. Controller Manager 
+* Node Controller (nodes)
+* Replication Controller (Pods)
+* Endpoints Controller (Services)
+* Service Account & Token Access (Account access & Api namespaces)
+
+=> Master node will communicate with worker node with help of API Server
+
+Kubernetes architecture explains how all Kubernetes components work together to run and manage your containers.
+It is divided into two main parts:
+1️⃣ Control Plane (Master) 2️⃣ Worker Nodes
+
+High-Level Architecture
+
+                 kubectl / UI / CI-CD
+                          |
+                    API Server
+                          |
+        -----------------------------------
+        |               |                |
+   Scheduler     Controller Manager     etcd
+                                           
+=============================================
+               Worker Nodes
+=============================================
+        Node 1            Node 2            Node 3
+   -----------       -----------       -----------
+   kubelet           kubelet           kubelet
+   kube-proxy        kube-proxy        kube-proxy
+   Container Runtime (Docker/containerd/CRI-O)
+   Pods               Pods              Pods
+
+1️⃣ Control Plane (Brain of Kubernetes)
+The Control Plane decides and manages everything.
+a) API Server (kube-apiserver)
+🎯 Entry point of Kubernetes
+* All requests go through API Server
+* Validates & authenticates requests
+* Reads/Writes cluster state to etcd
+Example:
+
+kubectl get pods → API Server
+
+b) etcd (Cluster Database)
+🎯 Stores all cluster data
+* Key-value store
+* Stores:
+    * Pods
+    * Deployments
+    * Services
+    * ConfigMaps
+    * Secrets
+    * Node info
+* Single source of truth
+
+c) Scheduler (kube-scheduler)
+🎯 Decides where Pods run
+* Selects best Worker Node for a Pod
+* Based on:
+    * CPU
+    * Memory
+    * Node labels
+    * Taints & tolerations
+    * Affinity rules
+
+d) Controller Manager (kube-controller-manager)
+🎯 Keeps desired state = actual state
+Runs controllers like:
+* Deployment Controller
+* ReplicaSet Controller
+* Node Controller
+* Job Controller
+Example: If Pod dies → Controller creates new Pod
+
+2️⃣ Worker Nodes (Where Apps Run)
+Worker Nodes actually run your containers.
+a) kubelet
+🎯 Node agent
+* Talks to API Server
+* Starts/stops Pods
+* Reports node & pod health
+
+b) Container Runtime
+🎯 Runs containers
+Examples:
+* containerd (most common now)
+* CRI-O
+* Docker (older setups)
+Actually pulls images & runs containers.
+
+c) kube-proxy
+🎯 Networking & load balancing
+* Implements Services
+* Handles:
+    * Pod-to-Pod communication
+    * Service IPs
+    * Load balancing traffic
+
+How a Request Flows (Real Example)
+When you do:
+
+kubectl apply -f deployment.yaml
+Flow:
+1. kubectl → API Server
+2. API Server → stores in etcd
+3. Deployment Controller sees new Deployment
+4. ReplicaSet created
+5. Scheduler assigns Pods to Nodes
+6. kubelet on each node starts containers
+7. kube-proxy sets up networking
+
+==============================================
+A Kubernetes Cluster consists of:
+✅ Control Plane (manages the cluster) ✅ Worker Nodes (run your applications) ✅ Networking between all nodes ✅ Shared configuration & state
+
+Kubernetes Cluster
+   |
+   |-- Control Plane Nodes
+   |     |-- API Server
+   |     |-- etcd
+   |     |-- Scheduler
+   |     |-- Controller Manager
+   |
+   |-- Worker Nodes
+         |-- kubelet
+         |-- kube-proxy
+         |-- Container Runtime
+         |-- Pods (your apps)
+
+kubectl is the command-line tool to communicate with Kubernetes clusters.
+Minikube is a tool that lets you run a single-node Kubernetes cluster locally on your Mac, Windows, or Linux
+
+=======================================================================
+
+Step-1: Create first sample spring boot application and mvn clean package
+Step-2: Minikube start 
+Step -3: Minikube status
+Step-4: eval $(minikube docker-env)
+Step-5: navigate to the project and build the docker image
+Step-6: docker images
+Step-7: create k8s deployment object
+Step-8: create deployment file in the spring boot project
+Step-9: in the terminal -> kubectl apply -f k8s-deployment.yaml
+Step-10: kubectl get deployments
+Step-11: kubectl get pods
+Step-12: kubectl logs <pod-name>
+Step-13:- create Kubernetes service object
+Step-14:- In the terminal -> kubectl apply -f k8s-service.yaml
+Step-15:- kubectl get service or kubectl get svs 
+Step-16:- kubectl get nodes -o wide
+Step-17:- minikkube ip
+
+http://{nodeIP}:{PORT}/{API URL}
+
+http:192.168.49.2:31591/hello
+
+kubectl get nodes -o wide => INTERNAL-IP
+kubectl get svc          =>80:31591 {PORT} /TCP
+
+
+http://INTERNAL-IP:TCP
+
+Delete the deployment and service files :-
+===============================
+kubectl delete -f k8s-deployment.yaml
+kubectl delete -f k8s-service.yaml
+
+kubectl get deployments
+kubectl get pods
+kubectl get svc
+
+Minikube dashboard
+
+minikube service springboot-k8s-service --url
+
+
+
+================================
+Kubernets Important Commands:-
+================================
+
+1. mvn clean package
+2. minikube start 
+3. minikube status
+4. Navigate to the specific folder like spring boot work space like Docker file, deployment yaml and service yaml etc (ROOT Folder)
+5. eval $(minikube docker-env)
+6. build docker image
+ 	 docker build -t <image-name> .
+  7.  check images 
+        docker images
+   8. Write deployment and service yaml file if you use database means another same yaml files in our root package (spring boot application)
+1. Create the deployment and service objects in the k8s clusters by using below commands 
+2. kubectl apply -f k8s-deployment.yaml
+3. kubectl apply -f k8s-service.yaml
+
+===================================================
+
+1️⃣ Deployments
+
+Create / Apply Deployment YAML:-
+=========================
+
+kubectl apply -f <deployment.yaml>
+ 
+Check Deployment Status:-
+====================
+kubectl get deployments
+kubectl describe deployment <deployment-name>
+
+List Pods of a Deployment:-
+=====================
+kubectl get pods -l app=<label-name>
+
+Check Logs of a Pod:-
+================
+kubectl logs <pod-name>
+kubectl logs -f <pod-name>   # follow live logs
+
+Exec into a Pod:-
+============
+kubectl exec -it <pod-name> -- /bin/bash
+
+Restart / Rollout Deployment (useful after image rebuild):-
+=============================================
+kubectl rollout restart deployment <deployment-name>
+
+Delete Deployment:-
+===============
+kubectl delete deployment <deployment-name>
+
+2️⃣ Services
+
+Create / Apply Service YAML:-
+======================
+kubectl apply -f <service.yaml>
+
+List Services:-
+==========
+kubectl get services
+kubectl get svc
+
+Describe Service:- =============
+kubectl describe service <service-name>
+
+Delete Service:-
+============
+kubectl delete service <service-name>
+========================================
+kubectl exec -it <pod-name> -- /bin/bash
+
+1️⃣ Connect to MySQL inside the container
+mysql -u root -p
+
+It will prompt for a password
+
+Enter the password you set in your deployment YAML:
+
+root@123
+
+Optionally, you can directly specify database and password:
+
+mysql -u root -proot@123 sb
+
+sb is your database name
+
+2️⃣ Verify the database and tables
+
+Once inside MySQL:
+
+SHOW DATABASES;
+USE sb;
+SHOW TABLES;
+
+
+You should see the orders table (if your Spring Boot app has already created it)
+
+3️⃣ Optional: Check if any data exists
+SELECT * FROM orders;
+
+
+This will show all orders inserted so far
+
+4️⃣ Exit MySQL
+exit
+
+5️⃣ Exit container shell
+exit
+
+
